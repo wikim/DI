@@ -1,0 +1,520 @@
+package routines;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import routines.system.JSONArray;
+import routines.system.JSONObject;
+
+//import com.amazonaws.services.dynamodbv2.document.Item;
+//import com.amazonaws.services.dynamodbv2.document.ItemUtils;
+
+
+
+
+
+/*
+ * user specification: the function's comment should contain keys as follows: 1. write about the function's comment.but
+ * it must be before the "{talendTypes}" key.
+ * 
+ * 2. {talendTypes} 's value must be talend Type, it is required . its value should be one of: String, char | Character,
+ * long | Long, int | Integer, boolean | Boolean, byte | Byte, Date, double | Double, float | Float, Object, short |
+ * Short
+ * 
+ * 3. {Category} define a category for the Function. it is required. its value is user-defined .
+ * 
+ * 4. {param} 's format is: {param} <type>[(<default value or closed list values>)] <name>[ : <comment>]
+ * 
+ * <type> 's value should be one of: string, int, list, double, object, boolean, long, char, date. <name>'s value is the
+ * Function's parameter name. the {param} is optional. so if you the Function without the parameters. the {param} don't
+ * added. you can have many parameters for the Function.
+ * 
+ * 5. {example} gives a example for the Function. it is optional.
+ */
+public class DynamoDBUtils {
+
+
+	
+	/**
+     * {example} changeDDBImage2Json("{"hk":{"S":"1"},"ap_nm":{"S":"aaa"},"sk":{"S":"1"}}")
+     * getDDBJson으로 변경
+     */
+	@Deprecated
+	public static String deleted_changeDDBImage2Json(String _source) {
+		
+		if(_source == null || _source.trim().isEmpty()) return "";
+			
+		JsonParser parser = new JsonParser();
+		JsonElement element = parser.parse(_source);
+		JsonObject obj = element.getAsJsonObject();
+		Set<Map.Entry<String, JsonElement>> entries = obj.entrySet();
+
+		JsonObject json = new JsonObject();
+
+		for (Map.Entry<String, JsonElement> entry : entries) {
+			String key = entry.getKey();
+			JsonElement subElement = parser.parse(entry.getValue().toString());
+
+			JsonObject subObj = subElement.getAsJsonObject();
+			Set<Map.Entry<String, JsonElement>> subEntries = subObj.entrySet();
+			for (Map.Entry<String, JsonElement> subEntry : subEntries) {
+				String type = subEntry.getKey();
+				//System.out.print(key + " : " + subEntry.getKey() + " : ");
+				//System.out.println(subEntry.getValue());
+
+				if (!type.equals("NULL" + "")) {
+					if (subEntry.getValue().isJsonArray()) {
+						// 값이 JSON 배열인 경우
+						int arrSize = subEntry.getValue().getAsJsonArray().size();
+						
+						JsonArray valJsonArray = new JsonArray();
+						
+						for (int i = 0; i < arrSize; i++) {
+							JsonObject docObj = subEntry.getValue().getAsJsonArray().get(i).getAsJsonObject();
+							JsonElement docElement = parser.parse(docObj.get("M").toString());
+
+							JsonObject subDocObj = docElement.getAsJsonObject();
+							Set<Map.Entry<String, JsonElement>> subDocEntries = subDocObj.entrySet();
+
+							//System.out.println("subDocObj ::: " + subDocObj);
+							//System.out.println("subDocEntries ::: " + subDocEntries);
+							
+							JsonObject valJson = new JsonObject();
+							
+							for (Map.Entry<String, JsonElement> subDocEntry : subDocEntries) {
+								String subKey = subDocEntry.getKey();
+								//System.out.println("subKey ::: " + subKey);
+								
+								JsonObject valObj = subDocEntry.getValue().getAsJsonObject();
+								Set<Map.Entry<String, JsonElement>> valEntries = valObj.entrySet();
+								//System.out.println("valObj ::: " + valObj);
+								//System.out.println("valEntries ::: " + valEntries);
+
+								for (Map.Entry<String, JsonElement> valEntry : valEntries) {
+									//String valType = valEntry.getKey();
+									if(valEntry.getKey().equals("N")) {
+										valJson.addProperty(subKey, valEntry.getValue().getAsNumber());
+									}else {
+										valJson.addProperty(subKey, valEntry.getValue().getAsString());
+									}
+								}
+							}
+							
+							//System.out.println("valJson ::: " + valJson);
+							valJsonArray.add(valJson);
+						}
+						
+						//System.out.println("valJsonArray ::: " + valJsonArray);
+						json.add(key, valJsonArray);
+					} else {
+						try {
+							json.addProperty(key, subEntry.getValue().getAsString());
+						} catch (Exception e) { 
+							e.getMessage();
+						}
+					}
+				} else {
+					json.addProperty(key, subEntry.getValue().getAsString());
+				}
+			}
+
+		}
+
+		return json.toString();
+	}
+	
+	
+	
+    /**
+     * transformJson2Text(: not return value, only print "hello" + message.
+     *  
+     * {talendTypes} String
+     * 
+     * {Category} DynamoDBUtils
+     * 
+     * {param} string("_source") input: The string need to be printed.
+     * 
+     * {example} transformJson2Text(("_NewImage") # hello world !.
+     */	
+	@Deprecated
+	public static String deleted_transformJson2Text(String _source) {
+		JsonParser parser = new JsonParser();
+		JsonElement element = parser.parse(_source);
+		JsonObject obj = element.getAsJsonObject();
+		Set<Map.Entry<String, JsonElement>> entries = obj.entrySet();
+
+		JsonObject json = new JsonObject();
+
+		for (Map.Entry<String, JsonElement> entry : entries) {
+			String key = entry.getKey();
+			JsonElement subElement = parser.parse(entry.getValue().toString());
+			
+			String value = "";
+		
+			if(subElement.isJsonPrimitive()){
+				value = entry.getValue().getAsString(); 
+			}else {
+				value = entry.getValue().toString().replace("\"", "'");
+			}
+
+		 	json.addProperty(key, value); 
+		}
+
+		return json.toString();
+	}
+
+
+    /**
+     * transformJson2Map
+     * 
+     * 
+     * {talendTypes} String
+     * 
+     * {Category} DynamoDBUtils
+     * 
+     * {param} string("_source") input: DynamoDB NewImage JSON String
+     * 
+     * {example} transformJson2Map("{"hk":{"S":"1"},"ap_nm":{"S":"aaa"},"sk":{"S":"1"}}") 
+     */	
+	@Deprecated
+	public static Map<String, String> deleted_transformJson2Map(String _source) {
+		
+		JsonParser parser = new JsonParser();
+		JsonElement element = parser.parse(_source);
+		JsonObject obj = element.getAsJsonObject();
+		Set<Map.Entry<String, JsonElement>> entries = obj.entrySet();
+		Map<String, String> map = new HashMap<String, String>();
+
+		for (Map.Entry<String, JsonElement> entry : entries) {
+			String key = entry.getKey();
+			JsonElement subElement = parser.parse(entry.getValue().toString());
+			
+			String value = "";
+		
+			if(subElement.isJsonPrimitive()){				
+				value = entry.getValue().getAsString(); 				
+			}else {		
+				value = entry.getValue().toString().replace("\"", "'");
+			}
+		
+			map.put(key, value);
+		}
+
+		return map;
+	}	
+	
+	@Deprecated
+	public static String deleted_getJsonObject(String src) {
+		String _source = src.trim();
+		
+		if(_source == null || _source.trim().isEmpty()) return "";
+		System.out.println(_source);
+		JsonParser parser = new JsonParser();
+		
+		JsonElement jelement = parser.parse(_source);
+		JsonObject  jobject = new JsonObject();
+		if (jelement instanceof JsonArray) {
+			 jelement =  jelement.getAsJsonArray();
+			 return jelement.toString();
+		 
+		}else if (jelement instanceof JsonObject) {
+			jobject  =  jelement .getAsJsonObject();			
+		}
+		
+		Set<Map.Entry<String, JsonElement>> entries = jobject.entrySet();
+
+		JsonObject json = new JsonObject();
+
+		for (Map.Entry<String, JsonElement> entry : entries) {
+			String key = entry.getKey();
+			JsonElement subElement = parser.parse(entry.getValue().toString());
+
+			JsonObject subObj = subElement.getAsJsonObject();
+			Set<Map.Entry<String, JsonElement>> subEntries = subObj.entrySet();
+			for (Map.Entry<String, JsonElement> subEntry : subEntries) {
+				String type = subEntry.getKey();
+				//System.out.print(key + " : " + subEntry.getKey() + " : ");
+				//System.out.println(subEntry.getValue());
+
+				if (!type.equals("NULL" + "")) {
+					if (subEntry.getValue().isJsonArray()) {
+						// 값이 JSON 배열인 경우
+						int arrSize = subEntry.getValue().getAsJsonArray().size();
+						
+						JsonArray valJsonArray = new JsonArray();
+						
+						for (int i = 0; i < arrSize; i++) {
+							JsonObject docObj = subEntry.getValue().getAsJsonArray().get(i).getAsJsonObject();
+							JsonElement docElement = parser.parse(docObj.get("M").toString());
+
+							JsonObject subDocObj = docElement.getAsJsonObject();
+							Set<Map.Entry<String, JsonElement>> subDocEntries = subDocObj.entrySet();
+
+							//System.out.println("subDocObj ::: " + subDocObj);
+							//System.out.println("subDocEntries ::: " + subDocEntries);
+							
+							JsonObject valJson = new JsonObject();
+							
+							for (Map.Entry<String, JsonElement> subDocEntry : subDocEntries) {
+								String subKey = subDocEntry.getKey();
+								//System.out.println("subKey ::: " + subKey);
+								
+								JsonObject valObj = subDocEntry.getValue().getAsJsonObject();
+								Set<Map.Entry<String, JsonElement>> valEntries = valObj.entrySet();
+								//System.out.println("valObj ::: " + valObj);
+								//System.out.println("valEntries ::: " + valEntries);
+
+								for (Map.Entry<String, JsonElement> valEntry : valEntries) {
+									//String valType = valEntry.getKey();
+									if(valEntry.getKey().equals("N")) {
+										valJson.addProperty(subKey, valEntry.getValue().getAsNumber());
+									}else {
+										valJson.addProperty(subKey, valEntry.getValue().getAsString());
+									}
+								}
+							}
+							
+							//System.out.println("valJson ::: " + valJson);
+							valJsonArray.add(valJson);
+						}
+						
+						//System.out.println("valJsonArray ::: " + valJsonArray);
+						json.add(key, valJsonArray);
+					} else {
+						
+						
+						
+						
+						
+						
+						
+					}
+				} else {
+					json.addProperty(key, subEntry.getValue().getAsString());
+				}
+			}
+
+		}
+		return json.toString();
+	}
+	
+	/**
+     * DDB Json 형식을 표준 Json 형식으로 변환
+     * 
+     * {talendTypes} String
+     * 
+     * {Category} DynamoDBUtils
+     * 
+     * {param} input: DynamoDB NewImage JSON String
+     * 
+	 * @param DDB JSON
+	 * @return Standard JSON
+	 * author wikim
+	 * date 2019.12.12
+	 */
+	public static String getDDBJson(String src) {
+		if(src == null || src.trim().isEmpty()) return "";
+		
+		try {
+			JSONObject jsonObj = new JSONObject(src);
+			HashMap<String, Object> myMap = new Gson().fromJson(jsonObj.toString(), HashMap.class);
+			Map<String,Object> map = mapToJson(myMap);
+			ObjectMapper om = new ObjectMapper();
+			//System.out.println(":Input:"+om.writerWithDefaultPrettyPrinter().writeValueAsString(map));
+			return om.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	public static Map<String,Object> mapToJson(Map<String,Object> map){
+        Iterator<Entry<String, Object>> it = map.entrySet().iterator();
+        while(it.hasNext()) {        	
+            Map.Entry<String,Object> pair = (Map.Entry<String,Object>)it.next();
+            if(pair.getValue() instanceof ArrayList) {
+            	ArrayList arr = (ArrayList)pair.getValue();
+            	for(Object m : arr) {
+            		mapToJson((Map)m);
+            	}
+            } else {
+	            Map<String,Object> obj1 = (Map<String, Object>) pair.getValue();	            
+	            if(obj1.get("M") == null && obj1.get("L") == null) {
+	            	
+	            		if(obj1.get("N") != null) {	      
+		                	Object value = (Object) obj1.get("N");
+		                	
+		                	Number number = 0;
+		                	try {
+								number = NumberFormat.getInstance().parse((String)value);
+								if(QUtils.isInteger(value.toString())) {	                		
+			                		map.put(pair.getKey().toString(), QUtils.getInteger(value.toString()));
+			                	}else { //long, double
+			                		map.put(pair.getKey().toString(), number);
+			                	}
+							} catch (ParseException e) {
+								System.out.println("# Not numeric type. value is :"+number.doubleValue()+" : type is "+number.getClass().getTypeName());
+								e.printStackTrace();
+							}
+		                
+		                }else if(obj1.get("S") != null) {
+		                	map.put(pair.getKey().toString(),obj1.get("S"));
+		                
+		                }else if(obj1.get("NULL") != null) {
+		                	map.put(pair.getKey().toString(),null);
+		                }
+	            		
+	            }else if(obj1.get("M") != null){
+	            
+	                Map obj2 = (Map) pair.getValue();
+	                Map obj3 = (Map) obj2.get("M");
+	                map.put(pair.getKey().toString(),mapToJson(obj3));
+	            
+	            }else if(obj1.get("L") != null){
+	            	
+	            	List list3 = (ArrayList)obj1.get("L");
+	            	Iterator iterator = list3.iterator();
+	            	List l = new ArrayList();
+	            	while(iterator.hasNext()) {
+	            		
+	            		Map obj2 = (Map)iterator.next();
+	            		//System.out.println("::"+obj2.toString());
+            			
+            			if(obj2.get("M") != null) {
+            				//Json Array n Struts
+            				Map obj3  = (Map)obj2.get("M");
+                			l.add(mapToJson(obj3));                			
+                			
+            			}else {
+            				//Json Array
+            				/** TODO **/
+            				//System.out.println("ARRAY:"+obj2.get("N"));
+            				 Map.Entry<String,Object> entry = (Entry<String, Object>) obj2.entrySet().iterator().next();
+            				 String key = entry.getKey();
+            				 //obj2.keySet().            				 
+            				//l.add(obj2.get("N"));
+            				 l.add(entry.getValue());            				
+            				map.put(pair.getKey().toString(), l);
+            			}
+	            	}
+	            	map.put(pair.getKey().toString(), l);
+	            }
+            }
+        }
+        return map;
+    }
+	
+
+	/**
+	 * change 상품DDB hashkey -> ES _id
+	 * 
+	 * {talendTypes} String
+	 * 
+	 * {Category} DynamoDBUtils
+	 * 
+     * {param} string(hk) input: DynamoDB hashkey String
+     * 
+     * {example} changeEsSpdNo("SPD$LO1122") 
+	 * 
+	 * {return} LO1122 
+	 */	
+    public static String changeEsSpdNo(String hk) {
+    	
+    	if(hk == null || hk.trim().isEmpty()) return "";
+    	
+    	String[] tmp = hk.split("\\$");
+    	String spdno;
+    	
+    	if (tmp.length > 1) {
+    		spdno = tmp[1];
+    	} else {
+    		spdno = tmp[0];
+    	}
+    	
+    	return spdno;
+    }	
+    
+    /**
+     * sPD_PD_to_tPD_PD_sub1, sPD_PD_to_tPD_PD_sub2 에서 사용
+     *      
+     * {talendTypes} String
+     * 
+     * {Category} DynamoDBUtils
+     * 
+     * {param} 
+     * 
+     * {example} 
+     */ 
+	public static String selectSubItem(String key, String _source, String _field) {
+		if (_source == null || (_source != null && (_source.trim().isEmpty() || _source.trim().equals("[]"))))  return "[{}]";
+		
+		String[] field = _field.split(",");
+		
+		JsonParser parser = new JsonParser();
+		  
+		Object obj2 = null; Object obj3 = null;
+		JsonObject json = new JsonObject();
+		JSONObject subobj1 = new JSONObject();
+		JSONArray subarr = new JSONArray();
+		  
+
+		JSONArray jarr = (JSONArray) new JSONArray(_source);
+		 
+		obj3 = new JsonParser().parse(jarr.get(0).toString()); 
+		//System.out.println("##########" + obj3);
+		 
+		JsonObject subobj = (JsonObject)obj3;
+
+		Set<Map.Entry<String, JsonElement>> subEntries = subobj.entrySet();
+		
+		JsonArray valJsonArray = new JsonArray();
+		JsonObject valJson = new JsonObject();
+
+		boolean arryn = false;
+		
+		try {
+			
+			for (Map.Entry<String, JsonElement> subEntry : subEntries) {
+				String subKey = subEntry.getKey();
+				//System.out.println("subKey ::: " + subKey);
+				
+				arryn = subEntry.getValue().isJsonArray();
+				
+				for (int i = 0; i < field.length; i++) {
+					if (subKey.equals(field[i])) {
+						if (arryn) {
+							valJson.add(subKey, parser.parse(subEntry.getValue().getAsJsonArray().toString()) );
+							//System.out.println("subObj ::: " + subEntry.getValue().getAsJsonArray().toString());
+						} else {
+							valJson.addProperty(subKey, subEntry.getValue().getAsString());
+							//System.out.println("subStrValue ::: " + subEntry.getValue().getAsString());
+						}
+					}
+				}
+			}
+			valJsonArray.add(valJson);
+		} catch (Exception e) { 
+			e.getMessage();
+			//	System.out.println("e.getMessage() ::: " + e.getMessage());
+	    }
+		//System.out.println("valJsonArray ::: " + valJsonArray.toString());
+
+		return valJsonArray.toString();
+	}
+	
+}	
