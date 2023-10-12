@@ -1,48 +1,59 @@
 [
 {
   "id": 0,
-  "name": "MyGroup1",
-  "size": "",
-  "date": "02/19/2010",
-  "children": [
-    {
-      "id": 1,
-      "name": "my.ini",
-      "size": "9",
-      "date": "05/18/2013"
-    },
+  "name": "회원",
+  "Jobs": "73",
+  "Status": "43%",
+  "S": "33",
+  "E": "3",
+  "W": "30",
+  "Running Time": "1h3m",
+  "Start Time": "1h3m",
+  "End Time": "1h3m",
+  "Edit": "(edit)",
+  "children": [    
     {
       "id": 2,
-      "name": "Program Files",
-      "size": "4590",
-      "date": "03/21/2016",
+      "name": "VIP",
+      "Jobs": "73",
+  "Status": "43%",
+  "S": "33",
+  "E": "3",
+  "W": "30",
+  "Running Time": "1h3m",
+  "Start Time": "1h3m",
+  "End Time": "1h3m",
+  "Edit": "(edit)",
+  "pq_close": false,
       "children": [
         {
           "id": 21,
-          "name": "Java",
-          "size": "",
-          "date": "01/13/2010",
-          "pq_close": false,
-          "children": [
-            {
-              "id": 211,
-              "name": "java.exe",
-              "size": "142",
-              "date": "01/13/2010"
-            },
-            {
-              "id": 212,
-              "name": "jawt.dll",
-              "size": "5",
-              "date": "01/13/2010"
-            }
+          "name": "Online",
+          "Jobs": "73",
+  "Status": "43%",
+  "S": "33",
+  "E": "3",
+  "W": "30",
+  "Running Time": "1h3m",
+  "Start Time": "1h3m",
+  "End Time": "1h3m",
+  "Edit": "(edit)",
+  "pq_close": false,
+          "children": [            
           ]
         },
         {
           "id": 22,
           "name": "MySQL",
-          "size": "",
-          "date": "01/13/2010",
+         "Jobs": "73",
+  "Status": "43%",
+  "S": "33",
+  "E": "3",
+  "W": "30",
+  "Running Time": "1h3m",
+  "Start Time": "1h3m",
+  "End Time": "1h3m",
+  "Edit": "(edit)",
           "pq_close": false,
           "children": [
             {
@@ -78,63 +89,7 @@
           "date": "05/18/2013"
         }
       ]
-    },
-    {
-      "id": 3,
-      "name": "php",
-      "size": "7896",
-      "date": "07/05/2012",
-      "children": [
-        {
-          "id": 31,
-          "name": "license.txt",
-          "size": "4",
-          "date": "05/19/2009"
-        },
-        {
-          "id": 32,
-          "name": "news.txt",
-          "size": "399",
-          "date": "05/23/2009"
-        },
-        {
-          "id": 33,
-          "name": "php.ini",
-          "size": "68",
-          "date": "05/02/2014"
-        },
-        {
-          "id": 34,
-          "name": "snapshot.txt",
-          "size": "2",
-          "date": "5/20/2013"
-        },
-        {
-          "id": 35,
-          "name": "snapshot.txt",
-          "size": "2",
-          "date": "5/19/2013"
-        },
-        {
-          "id": 36,
-          "name": "snapshot.txt",
-          "size": "3",
-          "date": "5/18/2013"
-        },
-        {
-          "id": 37,
-          "name": "snapshot.txt",
-          "size": "4",
-          "date": "5/18/2013"
-        }
-      ]
-    },
-    {
-      "id": 4,
-      "name": "my.ini",
-      "size": "9",
-      "date": "05/18/2013"
-    }
+    }    
   ]
 }
 ]
