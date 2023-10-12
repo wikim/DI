@@ -1,0 +1,82 @@
+
+$(function () {
+
+    var obj = {        
+        height:500,                
+        hoverMode: 'row',        
+        animModel: {on: true},
+        dragModel:{
+            on: true,         
+            diHelper: ['name'],
+            dragNodes: function(rd, evt){              
+                var checkNodes = this.Tree().getCheckedNodes();               
+                return (checkNodes.length && checkNodes.indexOf(rd)>-1 )? checkNodes: [ rd ];
+            },
+            isDraggable: function(ui){
+                //exclude summary rows and root nodes.
+                //return !(ui.rowData.pq_gsummary || ui.rowData.pq_level == 0);
+
+                //No need to exclude root nodes in v7.4
+                return !ui.rowData.pq_gsummary;
+            }
+        },
+        dropModel: {
+            on: true,
+            divider: 200, //v7.4
+            isDroppable: function(evt, uiDrop){
+                
+                var Drag = uiDrop.helper.data('Drag'),
+                    uiDrag = Drag.getUI(),
+                    rdDrag = uiDrag.rowData,
+                    rdDrop = uiDrop.rowData, 
+                    Tree = this.Tree(),
+                    denyDrop = (                        
+                        rdDrop == rdDrag || 
+                        (rdDrop && rdDrop.pq_gsummary) ||  
+                        (rdDrop && Tree.isAncestor( rdDrop,  rdDrag))
+                    );
+                    
+                return !denyDrop;
+            }
+        },
+        treeModel: {
+            dataIndx: 'name',
+            select: true,
+            chk_dataIndx: 'state',
+            cascade: true,             
+            format: 'nested',
+            showFolder: false,
+            checkbox: true,
+            summary: true,
+            historyMove: true, //7.4
+            leafIfEmpty: true //7.4
+        },
+        sortModel: {ignoreCase: true},
+        scrollModel: { autoFit: true },    
+        numberCell: {width: 45},
+        columnTemplate: { minWidth: '10%', maxWidth: '80%', width: 100 },
+        colModel: [            
+            { dataIndx: 'name', title: 'Name', width: 250 },
+            { dataIndx: 'Jobs', title: 'Jobs', width: 50 },
+            { dataIndx: 'Status', title: 'Status', width: 50 },
+            { dataIndx: 'S', title: 'S', width: 50 },
+            { dataIndx: 'E', title: 'E', width: 50 },
+            { dataIndx: 'W', title: 'W', width: 50 },
+            { dataIndx: 'Running Time', title: 'Running Time', width: 50 },
+            { dataIndx: 'Start Time', title: 'Start Time', width: 50 },
+            { dataIndx: 'End Time', title: 'End Time', width: 50 },
+            { dataIndx: 'Edit', title: 'Edit', width: 50 }
+            
+        ],
+        dataModel: {
+            location: 'remote',
+            url:'https://raw.githubusercontent.com/wikim/DI/main/my.json',        
+            getData: function(data){
+                return {data: data};
+            }
+        }
+    }
+
+    pq.grid( "#grid_json", obj);
+
+});
