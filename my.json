@@ -44,7 +44,7 @@
         },
         {
           "id": 22,
-          "name": "MySQL",
+          "name": "NEW",
          "Jobs": "73",
   "Status": "43%",
   "S": "33",
@@ -55,38 +55,8 @@
   "End Time": "1h3m",
   "Edit": "(edit)",
           "pq_close": false,
-          "children": [
-            {
-              "id": 221,
-              "name": "my.ini",
-              "size": "9",
-              "date": "05/18/2013"
-            },
-            {
-              "id": 222,
-              "name": "my-huge.ini",
-              "size": "5",
-              "date": "02/25/2013"
-            },
-            {
-              "id": 223,
-              "name": "my-large.ini",
-              "size": "5",
-              "date": "03/25/2013"
-            },
-            {
-              "id": 224,
-              "name": "my-small.ini",
-              "size": "3",
-              "date": "03/26/2013"
-            }
+          "children": [            
           ]
-        },
-        {
-          "id": 23,
-          "name": "my.ini",
-          "size": "9",
-          "date": "05/18/2013"
         }
       ]
     }    
